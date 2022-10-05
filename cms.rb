@@ -76,13 +76,46 @@ def authenticate(username, password)
   hashed_pw == password
 end
 
+def valid_credentials(username, password)
+  valid_username?(username) && valid_password?(password)
+end
+
+def valid_username?(username)
+  users = load_user_credentials
+
+  if username.size < 3
+    session[:error] = "Username is too short, must be at least 3 characters long."
+    redirect '/users/signup'
+  elsif users.keys.include?(username)
+    session[:error] = "Username already exists."
+    redirect '/users/signup'
+  else
+    true
+  end
+end
+
+def valid_password?(password)
+  if password.size < 8
+    session[:error] = "Password is too short, must be at least 8 characters long."
+    redirect '/users/signup'
+  elsif password.match?(/^([^A-Z]*|[^a-z]*|[^\d]*)$/)
+    session[:error] = "Password must contain at least one uppercase letter, lowercase letter and number"
+    redirect '/users/signup'
+  else
+    true
+  end
+end
+
 def load_user_credentials
-  credentials_path = if ENV["RACK_ENV"] == "test"
-                       File.expand_path("../test/users.yml", __FILE__)
-                     else
-                       File.expand_path("../users.yml", __FILE__)
-                     end
   YAML.load_file(credentials_path)
+end
+
+def credentials_path
+  if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/users.yml", __FILE__)
+  else
+    File.expand_path("../users.yml", __FILE__)
+  end
 end
 
 def user_signed_in?(session)
@@ -144,6 +177,27 @@ post '/users/signout' do
   session[:username] = nil
   session[:success] = "Successfully signed out"
   redirect '/'
+end
+
+get '/users/signup' do
+  erb :sign_up, layout: :layout
+end
+
+post '/users/signup' do
+  username = params[:username]
+  password = params[:password]
+  users = load_user_credentials
+  
+  if valid_credentials(username, password)
+    hashed_pw = BCrypt::Password.create(password).to_str
+    users[username] = hashed_pw
+    File.open(credentials_path, "w") { |file| file.write(users.to_yaml) }
+    session[:success] = "#{username} successfully signed up! Please sign in below"
+    redirect '/'
+  else
+    session[:error] = "Invalid Credentials"
+    redirect '/users/signup'
+  end
 end
 
 get '/new' do
