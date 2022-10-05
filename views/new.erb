@@ -1,0 +1,5 @@
+<h2>Add a new document:</h2>
+<form method="post" action="/create_document">
+  <input type="text" name="filename" id="filename" placeholder="File Name..."value=<%= session.delete(:filename) || "" %>>
+  <button type="submit">Create</button>
+</form>

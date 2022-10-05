@@ -1,10 +1,34 @@
-<% if session[:error] %>
-  <p><%= session.delete(:error) %></p>
-<% end %>
 
+<header>
+  <h1>Content Management System</h1>
+  
+</header>
 <h2>Files</h2>
 <ul>
   <% @filenames.each do |filename| %>
-    <li><a href="/<%= filename %>"><%= filename %></a></li>
+    <li><a href="/<%= filename %>"><%= filename %></a>
+    <% if session[:signed_in] %>
+      - <a class="inline" href="/<%= filename %>/edit">edit</a> -
+      <form method="post" action="/<%= filename %>/duplicate" class="inline">
+        <button type="submit" name="duplicate" value="true" class="link-button">duplicate</button>
+      </form>
+      <form method="post" action="/<%= filename %>/delete" class="inline">
+        <button type="submit" name="delete" value="true" class="link-button">delete</button>
+      </form>
+    <% end %>
+    </li>
   <% end %>
 </ul>
+
+<% if session[:signed_in] %>
+  <a href="/new">New Document</a>
+  <br></br>
+  <i>Signed in as <%= session[:username]%>.</i>
+  <form method="post" action="/users/signout" class="inline">
+    <button class="inline"  type="submit">Sign Out</button>
+  </form>
+<% else %>
+  <form method="get" action="/users/signin" class="inline">
+    <button type="submit">Sign In</button>
+  </form>
+<% end %>

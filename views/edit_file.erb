@@ -1,0 +1,9 @@
+<h2>Edit <%= @filename %>:</h2>
+<form method="post" action="/<%= @filename %>/write">
+  <label for=new_filename>Filename</label>
+  <input name="new_filename" id="new_filename" placeholder="example.txt" value=<%= @filename %>>
+  <div>
+    <textarea name="content" id="content" rows="20" cols="100" placeholder="Write your text here..."><%= @content %></textarea>
+  </div>
+  <button type="submit">Save Changes</button>
+</form>
