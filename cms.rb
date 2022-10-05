@@ -82,7 +82,6 @@ end
 
 def valid_username?(username)
   users = load_user_credentials
-
   if username.size < 3
     session[:error] = "Username is too short, must be at least 3 characters long."
     redirect '/users/signup'
